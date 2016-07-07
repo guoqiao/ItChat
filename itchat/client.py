@@ -52,7 +52,7 @@ class client(object):
 
         regx = r'window.QRLogin.code = (\d+); window.QRLogin.uuid = "(\S+?)";'
         data = re.search(regx, r.text)
-        if data and data.group(1) == '200': 
+        if data and data.group(1) == '200':
             self.uuid = data.group(2)
             return self.uuid
     def get_QR(self, uuid = None):
@@ -142,7 +142,7 @@ class client(object):
         for m in tempList:
             if m['Sex'] != 0:
                 self.memberList.append(tools.emoji_dealer(m))
-            elif not (any([str(n) in m['UserName'] for n in range(10)]) and 
+            elif not (any([str(n) in m['UserName'] for n in range(10)]) and
                     any([chr(n) in m['UserName'] for n in (
                     range(ord('a'), ord('z') + 1) + range(ord('A'), ord('Z') + 1))])):
                 continue # userName have number and str
@@ -174,7 +174,7 @@ class client(object):
                 try:
                     if pauseTime < 5: pauseTime += 2
                     if i != '0': msgList = self.__get_msg()
-                    if msgList: 
+                    if msgList:
                         msgList = self.__produce_msg(msgList)
                         for msg in msgList: self.msgList.insert(0, msg)
                         pauseTime = 1
@@ -242,7 +242,10 @@ class client(object):
                     r = self.s.get(url, params = payloads, stream = True)
                     with open(picDir, 'wb') as f:
                         for block in r.iter_content(1024):
-                            f.write(block)
+                            if block:
+                                f.write(block)
+                        f.flush()
+                        os.fsync(f.fileno)
                 msg = {
                     'Type': 'Picture',
                     'Text': download_picture,}
@@ -316,12 +319,12 @@ class client(object):
                         'skey': self.loginInfo['skey'],}
                     headers = { 'Range:': 'bytes=0-'}
                     r = self.s.get(url, params = payloads, headers = headers, stream = True)
-                    with open(videoDir, 'wb') as f: 
+                    with open(videoDir, 'wb') as f:
                         for chunk in r.iter_content(chunk_size = 1024):
                             if chunk:
                                 f.write(chunk)
-                                f.flush()
-                                os.fsync(f.fileno())
+                        f.flush()
+                        os.fsync(f.fileno())
                 msg = {
                     'Type': 'Video',
                     'Text': download_video, }
