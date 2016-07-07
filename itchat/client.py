@@ -236,16 +236,9 @@ class client(object):
         for m in l:
             if '@@' in m['FromUserName']: m = self.__produce_group_chat(m)
             if m['MsgType'] == 1: # words
-                if m['Url']:
-                    regx = r'(.+?\(.+?\))'
-                    data = re.search(regx, m['Content'])
-                    msg = {
-                        'Type': 'Map',
-                        'Text': data.group(1),}
-                else:
-                    msg = {
-                        'Type': 'Text',
-                        'Text': m['Content'],}
+                msg = {
+                    'Type': 'Text',
+                    'Text': m['Content'],}
             elif m['MsgType'] == 3 or m['MsgType'] == 47: # picture
                 def download_picture(picDir):
                     url = '%s/webwxgetmsgimg'%self.loginInfo['url']
