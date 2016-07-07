@@ -126,7 +126,9 @@ class client(object):
             'List': [{
                 'UserName': userName,
                 'ChatRoomId': '', }], }
-        j = self.s.post(url, data = json.dumps(payloads), headers = headers).json()['ContactList'][0]
+        r = self.s.post(url, data = json.dumps(payloads), headers = headers)
+        dic = json.loads(r.content.decode('utf-8', 'replace'))
+        j = dic['ContactList'][0]
         j['isAdmin'] = j['OwnerUin'] == int(self.loginInfo['wxuin'])
         return j
     def get_contract(self, update = False):
