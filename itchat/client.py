@@ -245,7 +245,7 @@ class client(object):
                             if block:
                                 f.write(block)
                         f.flush()
-                        os.fsync(f.fileno)
+                        os.fsync(f.fileno())
                 msg = {
                     'Type': 'Picture',
                     'Text': download_picture,}
