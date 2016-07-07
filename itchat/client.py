@@ -317,7 +317,7 @@ class client(object):
                     payloads = {
                         'msgid': m['MsgId'],
                         'skey': self.loginInfo['skey'],}
-                    headers = { 'Range:': 'bytes=0-'}
+                    headers = { 'Range': 'bytes=0-'}
                     r = self.s.get(url, params = payloads, headers = headers, stream = True)
                     with open(videoDir, 'wb') as f:
                         for chunk in r.iter_content(chunk_size = 1024):
