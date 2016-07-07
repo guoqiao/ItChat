@@ -216,6 +216,17 @@ class client(object):
         dic = json.loads(r.content.decode('utf-8', 'replace'))
         self.loginInfo['SyncKey'] = dic['SyncKey']
         if dic['AddMsgCount'] != 0: return dic['AddMsgList']
+    def __stream_download(self, url, filePath, **kwargs):
+        kwargs.update(stream = True)
+        out.print_line("Requesting %s" % url)
+        r = self.s.get(url, **kwargs)
+        out.print_line("Status code from WeChat: %s" % r.status_code)
+        with open(filePath, 'wb') as f:
+            for block in r.iter_content(1024):
+                if block:
+                    f.write(block)
+            f.flush()
+            os.fsync(f.fileno())
     def __produce_msg(self, l):
         rl = []
         srl = [40, 43, 50, 52, 53, 9999]
@@ -239,13 +250,7 @@ class client(object):
                     payloads = {
                         'MsgID': m['NewMsgId'],
                         'skey': self.loginInfo['skey'],}
-                    r = self.s.get(url, params = payloads, stream = True)
-                    with open(picDir, 'wb') as f:
-                        for block in r.iter_content(1024):
-                            if block:
-                                f.write(block)
-                        f.flush()
-                        os.fsync(f.fileno())
+                    self.__stream_download(url, picDir, params = payloads)
                 msg = {
                     'Type': 'Picture',
                     'Text': download_picture,}
@@ -255,10 +260,7 @@ class client(object):
                     payloads = {
                         'msgid': m['NewMsgId'],
                         'skey': self.loginInfo['skey'],}
-                    r = self.s.get(url, params = payloads, stream = True)
-                    with open(voiceDir, 'wb') as f:
-                        for block in r.iter_content(1024):
-                            f.write(block)
+                    self.__stream_download(url, voiceDir, params = payloads)
                 msg = {
                     'Type': 'Recording',
                     'Text': download_voice,}
@@ -285,10 +287,7 @@ class client(object):
                             'fromuser': self.loginInfo['wxuin'],
                             'pass_ticket': 'undefined',
                             'webwx_data_ticket': cookiesList['webwx_data_ticket'],}
-                        r = self.s.get(url, params = payloads, stream = True)
-                        with open(attaDir, 'wb') as f:
-                            for block in r.iter_content(1024):
-                                f.write(block)
+                        self.__stream_download(url, attaDir, params = payloads)
                     msg = {
                         'Type': 'Attachment',
                         # 'FileName': m['FileName'],
@@ -318,13 +317,7 @@ class client(object):
                         'msgid': m['MsgId'],
                         'skey': self.loginInfo['skey'],}
                     headers = { 'Range': 'bytes=0-'}
-                    r = self.s.get(url, params = payloads, headers = headers, stream = True)
-                    with open(videoDir, 'wb') as f:
-                        for chunk in r.iter_content(chunk_size = 1024):
-                            if chunk:
-                                f.write(chunk)
-                        f.flush()
-                        os.fsync(f.fileno())
+                    self.__stream_download(url, videoDir, params = payloads, headers = headers)
                 msg = {
                     'Type': 'Video',
                     'Text': download_video, }
