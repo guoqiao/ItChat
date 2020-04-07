@@ -1,4 +1,4 @@
-import time, thread
+import time
 from client import client
 
 import traceback
